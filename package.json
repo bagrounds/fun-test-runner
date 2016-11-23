@@ -1,0 +1,23 @@
+{
+  "name": "fun-test-runner",
+  "version": "0.1.0",
+  "description": "A test runner for fun-test tests",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/bagrounds/fun-test-runner.git"
+  },
+  "keywords": [
+    "fun-test",
+    "runner"
+  ],
+  "author": "bagrounds <bagrounds@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://gitlab.com/bagrounds/fun-test-runner/issues"
+  },
+  "homepage": "https://gitlab.com/bagrounds/fun-test-runner#README"
+}
