@@ -50,8 +50,7 @@
 
     async.series(series, function (error) {
       if (error) {
-        tap.diagnostic(error)
-        tap.bail()
+        tap.diagnostic('Error: ' + error.message)
       }
 
       callback(error)
