@@ -25,28 +25,28 @@
    * @param {Function} callback handle results
    */
   function funTestRunner (options, callback) {
-    var fut = options.fut
-    var testSuite = options.testSuite
+    var subject = options.subject
+    var tests = options.tests
 
-    var series = Object.keys(testSuite).map(function (testKey, index) {
-      var currentTest = testSuite[testKey]
+    tap.plan(tests.length)
 
+    var series = tests.map(function (test, index) {
       return function (cb) {
-        currentTest(fut, function reporter (error) {
+        test(subject, function reporter (error) {
           tap.test({
             ok: !error,
-            description: '- ' + testKey,
+            description: '- ' + test.description,
             number: index + 1
           })
+
+          if (error) {
+            tap.diagnostic(error.message)
+          }
 
           cb()
         })
       }
     })
-
-    var numTests = series.length
-
-    tap.plan(numTests)
 
     async.series(series, function (error) {
       if (error) {
