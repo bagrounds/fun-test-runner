@@ -9,6 +9,7 @@
   /* imports */
   var async = require('async')
   var testAnythingProtocol = require('test-anything-protocol')
+  var stringify = require('stringify-anything')
 
   /* exports */
   module.exports = funTestRunner
@@ -35,7 +36,7 @@
         test(subject, function reporter (error) {
           tap.test({
             ok: !error,
-            description: '- ' + test.description,
+            description: '- ' + stringify(test),
             number: index + 1
           })
 
