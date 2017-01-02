@@ -36,7 +36,7 @@
         test(subject, function reporter (error) {
           tap.test({
             ok: !error,
-            description: '- ' + stringify(test),
+            description: '- ' + stringify(test, subject),
             number: index + 1
           })
 
