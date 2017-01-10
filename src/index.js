@@ -33,10 +33,10 @@
 
     var series = tests.map(function (test, index) {
       return function (cb) {
-        test(subject, function reporter (error) {
+        test(subject, function reporter (error, options) {
           tap.test({
             ok: !error,
-            description: '- ' + stringify(test, subject),
+            description: '- ' + toString(options),
             number: index + 1
           })
 
@@ -62,6 +62,24 @@
     error && console.error(error)
 
     console.log(result)
+  }
+
+  function toString (subject) {
+    var string = ''
+
+    if (options.transformer) {
+      string += stringify(options.transformer)
+    }
+
+    string += '(' + stringify(options.input) + ') -> '
+
+    string += 'error should ' + stringify(options.error)
+
+    if (options.result !== identity) {
+      string += ', result should ' + stringify(options.result)
+    }
+
+    return string
   }
 })()
 
