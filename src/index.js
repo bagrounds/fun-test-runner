@@ -64,7 +64,7 @@
     console.log(result)
   }
 
-  function toString (subject) {
+  function toString (options) {
     var string = ''
 
     if (options.transformer) {
@@ -75,7 +75,7 @@
 
     string += 'error should ' + stringify(options.error)
 
-    if (options.result !== identity) {
+    if (options.result) {
       string += ', result should ' + stringify(options.result)
     }
 
