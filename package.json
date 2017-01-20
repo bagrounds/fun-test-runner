@@ -21,7 +21,6 @@
   },
   "homepage": "https://gitlab.com/bagrounds/fun-test-runner#README",
   "dependencies": {
-    "async": "^2.1.4",
     "fun-assert": "latest",
     "stringify-anything": "latest",
     "test-anything-protocol": "^0.1.0"
