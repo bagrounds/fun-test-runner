@@ -59,7 +59,7 @@
       string += stringify(options.transformer) + ' o '
     }
 
-    string += 'subject (' + stringify(options.input) + ') -> '
+    string += 'subject (' + stringify(options.input).slice(1, -1) + ') -> '
 
     string += 'error: ' + stringify(options.error)
 
