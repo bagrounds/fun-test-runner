@@ -56,15 +56,15 @@
     var string = ''
 
     if (options.transformer) {
-      string += stringify(options.transformer)
+      string += stringify(options.transformer) + ' o '
     }
 
-    string += '(' + stringify(options.input) + ') -> '
+    string += 'subject (' + stringify(options.input) + ') -> '
 
-    string += 'error should ' + stringify(options.error)
+    string += 'error: ' + stringify(options.error)
 
     if (options.result) {
-      string += ', result should ' + stringify(options.result)
+      string += ', result: ' + stringify(options.result)
     }
 
     return string
