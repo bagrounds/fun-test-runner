@@ -1,5 +1,4 @@
 /**
- * fun-test-runner is a test runner for fun tests.
  *
  * @module fun-test-runner
  */
@@ -7,67 +6,80 @@
   'use strict'
 
   /* imports */
-  var testAnythingProtocol = require('test-anything-protocol')
+  var nameFunction = require('./lib/name-function')
+  var funTest = require('fun-test')
   var stringify = require('stringify-anything')
+  var tap = require('test-anything-protocol')(producer)
 
   /* exports */
-  module.exports = funTestRunner
+  module.exports = runner
 
-  var tap = testAnythingProtocol(producer)
+  var i = 1
 
-  /**
-   * funTestRunner is a test runner for fun tests.
-   *
-   * @function funTestRunner
-   * @alias fun-test-runner
-   *
-   * @param {Object} options all function parameters
-   * @param {Function} callback handle results
-   */
-  function funTestRunner (options) {
-    var subject = options.subject
-    var tests = options.tests
-
-    tap.plan(tests.length)
-
-    tests.map(function (test) {
-      return test(subject)
-    })
-    .forEach(function (results, index) {
-      tap.test({
-        ok: !results.error,
-        description: '- ' + toString(results.options),
-        number: index + 1
+  function runner (options) {
+    var testCount = options.tests
+      .map(function (array) {
+        return array.length
       })
+      .reduce(function (a, b) {
+        return a + b
+      }, 0)
 
-      if (results.error) {
-        tap.diagnostic(stringify(results.error))
-      }
+    tap.plan(testCount)
+
+    var testOptions = {
+      subject: options.subject,
+      reporter: reporter
+    }
+
+    return options.tests.map(function (tests) {
+      return tests
+        .map(funTest.of)
+        .reduce(funTest.concat, funTest.empty())
+    }).reduce(funTest.concat, funTest.empty())(testOptions)
+  }
+
+  function producer (error, message) {
+    if (error) {
+      throw error
+    }
+
+    console.log(message)
+  }
+
+  function reporter (stuff) {
+    if (stuff.comment) {
+      tap.diagnostic(stuff.comment)
+    }
+
+    if (stuff.error) {
+      return reportError(stuff)
+    }
+
+    return reportSuccess(stuff)
+  }
+
+  function reportError (stuff) {
+    tap.test({
+      ok: false,
+      description: '- ' + stuff.error.message,
+      number: i++
     })
+    return stuff.error
   }
 
-  function producer (error, result) {
-    error && console.error(error)
+  function reportSuccess (stuff) {
+    var message = nameFunction(stuff.action, [stuff.previous]) +
+      ' => ' +
+      stringify(stuff.data)
 
-    console.log(result)
-  }
+    tap.test({
+      ok: true,
+      description: '- ' + message,
+      number: i++
+    })
 
-  function toString (options) {
-    var string = ''
-
-    if (options.transformer) {
-      string += stringify(options.transformer) + ' o '
-    }
-
-    string += 'subject (' + stringify(options.input).slice(1, -1) + ') -> '
-
-    string += 'error: ' + stringify(options.error)
-
-    if (options.result) {
-      string += ', result: ' + stringify(options.result)
-    }
-
-    return string
+    return stuff.data
   }
 })()
 
