@@ -1,6 +1,6 @@
 {
   "name": "fun-test-runner",
-  "version": "0.6.2",
+  "version": "0.7.0",
   "description": "A test runner for fun-test tests",
   "main": "src/index.js",
   "scripts": {
