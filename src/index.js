@@ -53,10 +53,10 @@
     }
 
     if (stuff.error) {
-      return reportError(stuff)
+      reportError(stuff)
+    } else {
+      reportSuccess(stuff)
     }
-
-    return reportSuccess(stuff)
   }
 
   function reportError (stuff) {
@@ -65,21 +65,18 @@
       description: '- ' + stuff.error.message,
       number: i++
     })
-    return stuff.error
   }
 
   function reportSuccess (stuff) {
-    var message = nameFunction(stuff.action, [stuff.previous]) +
+    var message = nameFunction(stuff.action, [stuff.data]) +
       ' => ' +
-      stringify(stuff.data)
+      stringify(stuff.result)
 
     tap.test({
       ok: true,
       description: '- ' + message,
       number: i++
     })
-
-    return stuff.data
   }
 })()
 
