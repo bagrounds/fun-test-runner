@@ -6,77 +6,70 @@
   'use strict'
 
   /* imports */
-  var nameFunction = require('./lib/name-function')
-  var funTest = require('fun-test')
-  var stringify = require('stringify-anything')
-  var tap = require('test-anything-protocol')(producer)
+  var Task = require('data.task')
+  var fn = require('fun-function')
+  var array = require('fun-array')
+  var curry = require('fun-curry')
 
   /* exports */
-  module.exports = runner
+  module.exports = curry(runner)
 
-  var i = 1
+  /**
+   *
+   * @function module:fun-test-runner.runner
+   *
+   * @param {Array<Function>} tests - [subject -> Task(Boolean)]
+   * @param {*} subject - to be tested
+   *
+   * @return {Task} of results
+   */
+  function runner (tests, subject) {
+    return fn.compose(
+      array.fold(
+        combine,
+        init,
+        tests.map(embelish)
+      ),
+      lift
+    )(subject)
 
-  function runner (options) {
-    var testCount = options.tests
-      .map(function (array) {
-        return array.length
+    function init (subject) {
+      return new Task(function (onError, onSuccess) {
+        console.log('1..' + tests.length)
+        onSuccess(subject)
       })
-      .reduce(function (a, b) {
-        return a + b
-      }, 0)
-
-    tap.plan(testCount)
-
-    var testOptions = {
-      subject: options.subject,
-      reporter: reporter
     }
 
-    return options.tests.map(function (tests) {
-      return tests
-        .map(funTest.of)
-        .reduce(funTest.concat, funTest.empty())
-    }).reduce(funTest.concat, funTest.empty())(testOptions)
+    function lift (s) {
+      return [0, s]
+    }
+
+    function combine (t1, t2) {
+      return function (s) {
+        return t1(s).chain(t2)
+      }
+    }
   }
 
-  function producer (error, message) {
-    if (error) {
-      throw error
+  function embelish (test) {
+    return function (pair) {
+      return test(pair[1])
+        .map(lift)
+        .chain(report)
+
+      function lift (x) {
+        return [pair[0] + 1, pair[1], x, test]
+      }
     }
+  }
+
+  function report (result) {
+    var message = (result[2] ? 'ok' : 'not ok') +
+      ' ' + result[0] + ' - ' + result[3].name
 
     console.log(message)
-  }
 
-  function reporter (stuff) {
-    if (stuff.comment) {
-      tap.diagnostic(stuff.comment)
-    }
-
-    if (stuff.error) {
-      reportError(stuff)
-    } else {
-      reportSuccess(stuff)
-    }
-  }
-
-  function reportError (stuff) {
-    tap.test({
-      ok: false,
-      description: '- ' + stuff.error.message,
-      number: i++
-    })
-  }
-
-  function reportSuccess (stuff) {
-    var message = nameFunction(stuff.action, [stuff.data]) +
-      ' => ' +
-      stringify(stuff.result)
-
-    tap.test({
-      ok: true,
-      description: '- ' + message,
-      number: i++
-    })
+    return Task.of(result)
   }
 })()
 
