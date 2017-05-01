@@ -10,6 +10,7 @@
   var fn = require('fun-function')
   var array = require('fun-array')
   var curry = require('fun-curry')
+  var tap = require('test-anything-protocol')
 
   /* exports */
   module.exports = curry(runner)
@@ -35,7 +36,7 @@
 
     function init (subject) {
       return new Task(function (onError, onSuccess) {
-        console.log('1..' + tests.length)
+        console.log(tap.plan(tests.length))
         onSuccess(subject)
       })
     }
@@ -64,10 +65,11 @@
   }
 
   function report (result) {
-    var message = (result[2] ? 'ok' : 'not ok') +
-      ' ' + result[0] + ' - ' + result[3].name
-
-    console.log(message)
+    console.log(tap.test({
+      ok: result[2],
+      number: result[0],
+      description: result[3].name
+    }))
 
     return Task.of(result)
   }
