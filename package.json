@@ -22,10 +22,8 @@
   "homepage": "https://gitlab.com/bagrounds/fun-test-runner#README",
   "dependencies": {
     "data.task": "^3.1.1",
-    "fun-array": "^0.5.0",
-    "fun-curry": "^0.2.6",
-    "fun-function": "^0.4.0",
-    "fun-test": "latest",
+    "fun-array": "^0.6.0",
+    "fun-function": "^0.7.3",
     "test-anything-protocol": "^0.2.0"
   }
 }

@@ -9,11 +9,10 @@
   var Task = require('data.task')
   var fn = require('fun-function')
   var array = require('fun-array')
-  var curry = require('fun-curry')
   var tap = require('test-anything-protocol')
 
   /* exports */
-  module.exports = curry(runner)
+  module.exports = fn.curry(runner)
 
   /**
    *
