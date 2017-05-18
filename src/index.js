@@ -6,71 +6,65 @@
   'use strict'
 
   /* imports */
-  var Task = require('data.task')
   var fn = require('fun-function')
-  var array = require('fun-array')
+  var async = require('fun-async')
+  var object = require('fun-object')
+  var scalar = require('fun-scalar')
   var tap = require('test-anything-protocol')
+  var stringify = require('stringify-anything')
 
   /* exports */
-  module.exports = fn.curry(runner)
+  module.exports = fn.curry(run)
 
   /**
+   * Run each test with the provided subject. Logs output to console in Test
+   * Anything Protocol format.
    *
-   * @function module:fun-test-runner.runner
+   * @function module:fun-test-runner.run
    *
-   * @param {Array<Function>} tests - [subject -> Task(Boolean)]
-   * @param {*} subject - to be tested
+   * @param {Object} options - all input parameters
+   * @param {*} options.subject - to test
+   * @param {Array<Function>} options.tests - (subject, cb) ~> [Error, Boolean]
    *
-   * @return {Task} of results
+   * @param {Function} callback - handle results
    */
-  function runner (tests, subject) {
-    return fn.compose(
-      array.fold(
-        combine,
-        init,
-        tests.map(embelish)
-      ),
-      lift
-    )(subject)
+  function run (options, callback) {
+    console.log(tap.plan(options.tests.length))
 
-    function init (subject) {
-      return new Task(function (onError, onSuccess) {
-        console.log(tap.plan(tests.length))
-        onSuccess(subject)
-      })
+    var input = {
+      subject: options.subject,
+      number: 0
     }
 
-    function lift (s) {
-      return [0, s]
-    }
+    async.composeAll(
+      options.tests.map(lift)
+    )(input, callback)
 
-    function combine (t1, t2) {
-      return function (s) {
-        return t1(s).chain(t2)
+    function lift (test) {
+      return function (options, callback) {
+        test(options.subject, function (error, result) {
+          if (error) {
+            throw error
+          }
+          callback(
+            error,
+            fn.compose(fn.tee(report), object.ap({
+              number: scalar.sum(1),
+              result: fn.k(result),
+              test: fn.k(test)
+            }))(options)
+          )
+        })
       }
     }
   }
 
-  function embelish (test) {
-    return function (pair) {
-      return test(pair[1])
-        .map(lift)
-        .chain(report)
-
-      function lift (x) {
-        return [pair[0] + 1, pair[1], x, test]
-      }
-    }
-  }
-
-  function report (result) {
+  function report (options) {
     console.log(tap.test({
-      ok: result[2],
-      number: result[0],
-      description: result[3].name
+      number: options.number,
+      ok: options.result,
+      description: stringify(options.test)
     }))
-
-    return Task.of(result)
   }
 })()
 

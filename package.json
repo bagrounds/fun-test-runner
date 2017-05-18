@@ -3,8 +3,23 @@
   "version": "0.8.2",
   "description": "A test runner for fun-test tests",
   "main": "src/index.js",
+  "browser": "dist/bundle.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "pretest": "npm run lint",
+    "test": "tap -Rtap --coverage-report=text-summary ./test/index.js",
+    "coverage": "tap --coverage-report=lcov ./test/index.js",
+    "predependencies": "mkdir -p img",
+    "dependencies": "madge src --image img/dependencies.svg -x 'public|test|coverage|docs' --include-npm",
+    "postdependencies": "npm run dependencies-test",
+    "dependencies-test": "madge . --image img/dependencies-test.svg -x 'dist|public|coverage|docs' --include-npm",
+    "pages-index": "showdown makehtml -i README.md -o public/index.html",
+    "pages": "./script/pages.sh",
+    "lint": "eslint --ignore-path .gitignore --fix . --ignore-pattern dist",
+    "predocument": "rm -rf docs",
+    "document": "jsdoc -c .jsdoc.json",
+    "browserify": "browserify dist/entry.js --no-bf | uglifyjs > dist/bundle.js",
+    "readme": "cat readme/* > README.md",
+    "next-update": "next-update -k true --tldr"
   },
   "repository": {
     "type": "git",
@@ -20,10 +35,22 @@
     "url": "https://gitlab.com/bagrounds/fun-test-runner/issues"
   },
   "homepage": "https://gitlab.com/bagrounds/fun-test-runner#README",
+  "devDependencies": {
+    "browserify": "^14.3.0",
+    "docdash": "^0.4.0",
+    "eslint": "4.0.0-alpha.2",
+    "jsdoc": "^3.4.3",
+    "madge": "^1.6.0",
+    "next-update": "^1.5.1",
+    "tap": "10.3.2",
+    "uglify-js": "3.0.8"
+  },
   "dependencies": {
-    "data.task": "^3.1.1",
-    "fun-array": "^0.7.0",
-    "fun-function": "^0.8.0",
+    "fun-async": "^0.1.1",
+    "fun-function": "0.9.1",
+    "fun-object": "^0.6.3",
+    "fun-scalar": "^0.4.0",
+    "stringify-anything": "^0.6.3",
     "test-anything-protocol": "^0.2.1"
   }
 }

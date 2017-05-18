@@ -1,0 +1,2 @@
+funTestRunner = require('../src')
+
