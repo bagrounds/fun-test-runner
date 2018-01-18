@@ -36,21 +36,22 @@
   },
   "homepage": "https://gitlab.com/bagrounds/fun-test-runner#README",
   "devDependencies": {
-    "browserify": "^14.3.0",
+    "browserify": "^15.2.0",
     "docdash": "^0.4.0",
-    "eslint": "4.0.0-alpha.2",
-    "jsdoc": "^3.4.3",
-    "madge": "^1.6.0",
-    "next-update": "^1.5.1",
-    "tap": "10.3.2",
-    "uglify-js": "3.0.8"
+    "eslint": "^4.15.0",
+    "fun-predicate": "^0.17.0",
+    "fun-test": "^0.24.1",
+    "jsdoc": "^3.5.5",
+    "madge": "^2.2.0",
+    "next-update": "^3.6.0",
+    "tap": "^11.0.1",
+    "uglify-js-es6": "^2.8.9"
   },
   "dependencies": {
-    "fun-async": "^0.1.1",
-    "fun-function": "0.9.1",
-    "fun-object": "^0.6.3",
-    "fun-scalar": "^0.4.0",
-    "stringify-anything": "^0.6.3",
+    "fun-curry": "^0.3.3",
+    "fun-type": "^0.6.2",
+    "guarded": "^0.8.1",
+    "stringify-anything": "^0.7.0",
     "test-anything-protocol": "^0.2.1"
   }
 }

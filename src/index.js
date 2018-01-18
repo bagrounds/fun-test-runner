@@ -2,69 +2,73 @@
  *
  * @module fun-test-runner
  */
-;(function () {
+;(() => {
   'use strict'
 
   /* imports */
-  var fn = require('fun-function')
-  var async = require('fun-async')
-  var object = require('fun-object')
-  var scalar = require('fun-scalar')
-  var tap = require('test-anything-protocol')
-  var stringify = require('stringify-anything')
+  const curry = require('fun-curry')
+  const { plan, test, diagnostic, bail } = require('test-anything-protocol')
+  const stringify = require('stringify-anything')
+  const { inputs } = require('guarded')
+  const { tuple, record, any, arrayOf, fun } = require('fun-type')
 
-  /* exports */
-  module.exports = fn.curry(run)
+  const report = (result, i, t) => test({
+    number: i + 1,
+    ok: result === true,
+    description: stringify(t)
+  })
+
+  const reportThrown = (error, i, test) => [
+    report(error, i, test),
+    diagnostic('Unexpected error thrown by test:'),
+    diagnostic(stringify(error)),
+    bail()
+  ].join('\n')
+
+  const reportFaulty = (result, i, test) => [
+    report(result, i, test),
+    diagnostic(`Faulty test returned: \`${stringify(result)}\``),
+    diagnostic('Tests must return true or false!'),
+    bail()
+  ].join('\n')
 
   /**
-   * Run each test with the provided subject. Logs output to console in Test
-   * Anything Protocol format.
+   * Run each test with the provided subject. Returns output one line at a time
+   * by repeatedly calling the provided node-style callback function. Output is
+   * in Test-Anything-Protocol (TAP) format.
    *
    * @function module:fun-test-runner.run
    *
-   * @param {Object} options - all input parameters
-   * @param {*} options.subject - to test
-   * @param {Array<Function>} options.tests - (subject, cb) ~> [Error, Boolean]
-   *
-   * @param {Function} callback - handle results
+   * @param {Object} o - all input parameters
+   * @param {*} o.subject - to test
+   * @param {Array<Function>} o.tests - [(subject, cb) ~> [Error, Boolean]]
+   * @param {Function} callback - node-style (error first) callback function
    */
-  function run (options, callback) {
-    console.log(tap.plan(options.tests.length))
+  const run = ({ subject, tests }, callback) => {
+    callback(null, plan(tests.length))
 
-    var input = {
-      subject: options.subject,
-      number: 0
-    }
-
-    async.composeAll(
-      options.tests.map(lift)
-    )(input, callback)
-
-    function lift (test) {
-      return function (options, callback) {
-        test(options.subject, function (error, result) {
-          if (error) {
-            throw error
-          }
-          callback(
-            error,
-            fn.compose(fn.tee(report), object.ap({
-              number: scalar.sum(1),
-              result: fn.k(result),
-              test: fn.k(test)
-            }))(options)
-          )
-        })
+    tests.forEach((test, i) => {
+      try {
+        test(subject, (error, result) => error
+          ? callback(error, bail())
+          : (typeof result !== 'boolean')
+            ? callback(null, reportFaulty(result, i, test))
+            : callback(null, report(result, i, test)))
+      } catch (error) {
+        callback(null, reportThrown(error, i, test))
       }
-    }
+    })
   }
 
-  function report (options) {
-    console.log(tap.test({
-      number: options.number,
-      ok: options.result,
-      description: stringify(options.test)
-    }))
-  }
+  /* exports */
+  module.exports = curry(
+    inputs(
+      tuple([
+        record({ subject: any, tests: arrayOf(fun) }),
+        fun
+      ]),
+      run
+    )
+  )
 })()
 

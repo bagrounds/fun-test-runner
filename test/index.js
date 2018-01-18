@@ -1,9 +1,15 @@
 #!/usr/bin/env node
-;(function () {
+;(() => {
   'use strict'
 
-  var tap = require('test-anything-protocol')
+  /* imports */
+  const runner = require('..')
+  const tests = require('./tests')
+  const subject = runner
 
-  console.log(tap.plan(0))
+  runner({ tests, subject }, (error, result) => {
+    error && console.error(error)
+    console.log(result)
+  })
 })()
 
